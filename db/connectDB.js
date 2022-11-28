@@ -1,10 +1,5 @@
 const mongoose = require('mongoose');
 
-const connectDB = (URI) =>
-  mongoose.connect(URI, (err) => {
-    if (!err) {
-      console.log('Connected to DB...');
-    }
-  });
+const connectDB = (URI) => mongoose.connect(URI);
 
 module.exports = connectDB;
