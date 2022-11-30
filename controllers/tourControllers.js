@@ -1,32 +1,15 @@
 const Tour = require('../models/tourModel');
+const APIFeatures = require('../utils/apiFeatures');
 
 const getAllTours = async (req, res) => {
   try {
-    let urlQuery = JSON.stringify(req.query);
-    //Handle [gte] in url
-    urlQuery = urlQuery.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    urlQuery = JSON.parse(urlQuery);
+    const toursQuery = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
 
-    let toursQuery = Tour.find(urlQuery);
-    // sort
-    if (req.query.sort) {
-      const sortList = req.query.sort.split(',').join(' ');
-      toursQuery.sort(sortList);
-    }
-
-    //fields
-    if (req.query.fields) {
-      const fieldsList = req.query.fields.split(',').join(' ');
-      toursQuery.select(fieldsList);
-    }
-
-    //pagination
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 5;
-    const skipValue = (page - 1) * limit;
-    toursQuery.skip(skipValue).limit(limit);
-
-    const tours = await toursQuery;
+    const tours = await toursQuery.query;
     res.status(200).json({ length: tours.length, tours });
   } catch (err) {
     res.status(500).json(err);
